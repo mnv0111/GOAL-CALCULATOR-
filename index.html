@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f172a">
+<title>Time Calculator</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:18px;background:linear-gradient(145deg,#0f172a,#172554);color:#f8fafc;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.app{width:min(100%,460px);padding:24px;border:1px solid #334155;border-radius:24px;background:#0f172af2;box-shadow:0 24px 70px #0006}
+h1{margin:7px 0 5px;font-size:27px}.sub{margin:0 0 22px;color:#cbd5e1;font-size:14px;line-height:1.5}
+label{display:block;margin:16px 0 7px;font-size:14px;font-weight:700;color:#e2e8f0}
+input{width:100%;min-height:53px;padding:12px 14px;border:1px solid #475569;border-radius:13px;background:#020617;color:white;font-size:21px;outline:none}
+input:focus{border-color:#38bdf8;box-shadow:0 0 0 3px #38bdf826}
+button{width:100%;margin-top:20px;min-height:51px;border:0;border-radius:13px;background:#38bdf8;color:#082f49;font-size:16px;font-weight:800;cursor:pointer}
+.cards{display:grid;gap:11px;margin-top:20px}.card{padding:16px;border-radius:16px;border:1px solid #334155;background:#111827}.base{border-color:#0f766e;background:#052e2b}.extra15{border-color:#1d4ed8;background:#172554}.extra20{border-color:#7e22ce;background:#2e1065}
+.caption{font-size:13px;font-weight:750;color:#dbeafe}.time{display:block;margin-top:5px;font-size:clamp(35px,10vw,46px);font-weight:850;letter-spacing:.025em;font-variant-numeric:tabular-nums}.detail{margin-top:4px;font-size:13px;color:#cbd5e1}
+.error{min-height:18px;margin-top:8px;color:#fca5a5;font-size:13px}.note{margin-top:17px;padding-top:14px;border-top:1px solid #334155;color:#cbd5e1;font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<main class="app">
+<div style="font-size:30px">⏱️</div>
+<h1>Time Calculator</h1>
+<p class="sub">Starting time aur minutes enter karein. Total minutes normal count honge; 45 minutes ke baad ke liye final total mein 15 ya 20 extra minutes ke dono results alag dikhenge.</p>
+<label for="start">Starting Time (24-hour)</label>
+<input id="start" type="time" value="13:00" step="60">
+<label for="mins">Minutes Add Karein</label>
+<input id="mins" type="number" min="0" max="1000000" step="1" value="70" inputmode="numeric">
+<div id="error" class="error" role="alert"></div>
+<button id="calc" type="button">Calculate Time</button>
+<section class="cards" aria-live="polite">
+<div class="card base"><div class="caption">1. Normal time (minutes entered)</div><output id="normal" class="time">14:10</output><div id="normalDetail" class="detail">13:00 + 70 minutes</div></div>
+<div class="card extra15"><div class="caption">2. Normal time + 15 extra minutes</div><output id="plus15" class="time">14:25</output><div id="detail15" class="detail">13:00 + 70 + 15 minutes</div></div>
+<div class="card extra20"><div class="caption">3. Normal time + 20 extra minutes</div><output id="plus20" class="time">14:30</output><div id="detail20" class="detail">13:00 + 70 + 20 minutes</div></div>
+</section>
+<div class="note"><b>Example:</b> 13:00 + 70 min = 14:10 normal time. Extra adjustment ke saath: 14:25 (+15 min) ya 14:30 (+20 min). 45-minute point bhi normal count hota hai; extra minutes poore entered duration ke baad add hote hain. Midnight ke baad ka time bhi handle hota hai.</div>
+</main>
+<script>
+(() => {
+const startEl=document.getElementById('start'), minsEl=document.getElementById('mins'), errorEl=document.getElementById('error');
+function fmt(total){const m=((total%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')}
+function calc(){
+ const t=startEl.value, raw=minsEl.value.trim();
+ if(!t){errorEl.textContent='Starting time enter karein.';return}
+ if(raw===''||!Number.isFinite(Number(raw))||!Number.isInteger(Number(raw))||Number(raw)<0||Number(raw)>1000000){errorEl.textContent='Minutes mein 0 se 1,000,000 tak poora number enter karein.';return}
+ const [h,m]=t.split(':').map(Number), start=h*60+m, n=Number(raw);
+ document.getElementById('normal').textContent=fmt(start+n);
+ document.getElementById('plus15').textContent=fmt(start+n+15);
+ document.getElementById('plus20').textContent=fmt(start+n+20);
+ document.getElementById('normalDetail').textContent=`${t} + ${n} minutes`;
+ document.getElementById('detail15').textContent=`${t} + ${n} + 15 minutes`;
+ document.getElementById('detail20').textContent=`${t} + ${n} + 20 minutes`;
+ errorEl.textContent='';
+}
+document.getElementById('calc').addEventListener('click',calc);
+startEl.addEventListener('input',calc);minsEl.addEventListener('input',calc);calc();
+})();
+</script>
+</body>
+</html>
